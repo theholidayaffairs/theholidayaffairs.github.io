@@ -1,4 +1,4 @@
-wwww.theholidayaffairs.com
+www.theholidayaffairs.com
 
 <!--
 **theholidayaffairs/theholidayaffairs** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
