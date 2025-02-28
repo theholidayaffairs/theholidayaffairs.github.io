@@ -1,0 +1,142 @@
+/* ------------------------------------------------ */
+/* Logo Styling */
+.navbar-brand img {
+    height: 55px !important;
+    /* Default size for desktop */
+    width: auto !important;
+}
+
+/* Responsive Logo for Mobile */
+@media (max-width: 768px) {
+    .navbar-brand img {
+        height: 40px !important;
+        /* Smaller size for mobile */
+    }
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #ffffff;
+    /* White background */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+}
+
+/* Navbar Alignment */
+.navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Ensure right-side content stays aligned */
+.navbar-collapse {
+    justify-content: flex-end !important;
+}
+
+/* Adjust spacing between navbar items */
+.navbar-nav {
+    gap: 15px;
+}
+
+/* Enable dropdown on hover for desktop */
+@media (min-width: 992px) {
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+    }
+}
+
+/* Enable dropdown toggle on click for mobile */
+@media (max-width: 991px) {
+    .dropdown-menu {
+        display: none;
+    }
+
+    .nav-item.dropdown.show .dropdown-menu {
+        display: block;
+    }
+}
+
+html {
+    scroll-padding-top: 80px; /* Adjust according to navbar height */
+}
+
+/* ------------------------------------------------ */
+/* Responsive Styles for Carousel */
+.carousel {
+    margin-top: 80px;
+}
+
+.carousel-caption {
+    bottom: 15%;
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.carousel-image {
+    height: 500px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .carousel {
+        margin-top: 60px;
+    }
+
+    .carousel-caption {
+        bottom: 8%;
+        font-size: 14px;
+        width: 100%;
+        padding: 0 10px;
+    }
+
+    .carousel-image {
+        height: 300px;
+    }
+}
+
+.typing-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+    display: inline-block;
+    border-right: 3px solid white;
+    white-space: normal;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .typing-text {
+        font-size: 1.8rem;
+        white-space: normal;
+        word-wrap: break-word;
+        display: block;
+        border-right: none;
+    }
+}
+
+/* ------------------------------------------------ */
+/* Button Styling */
+
+.btn-custom {
+    background-color: #f08700;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.btn-custom:hover {
+    background-color: #d97500;
+}
+
+/* ------------------------------------------------ */
