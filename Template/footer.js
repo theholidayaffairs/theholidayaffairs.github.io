@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         <!-- Contact Us -->
                         <div class="col-12 col-md-4 mb-3 mb-md-0">
                             <h5>Contact Us</h5>
-                            <p>Kolkata, West Bengal, India</p>
-                            <p>Phone: +123 456 7890</p>
+                            <p>Kolkata, West Bengal, India (Online Operations)</p>
+                            <p>Phone: +91 8910324860</p>
                         </div>
 
                         <!-- Social Media -->
@@ -23,9 +23,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         <!-- Terms & Policies -->
                         <div class="col-12 col-md-4 text-md-end text-center">
                             <h5>Legal</h5>
-                            <p><a href="#">Terms & Conditions</a></p>
-                            <p><a href="#">Privacy Policy</a></p>
-                            <p><a href="#">Disclaimer</a></p>
+                            <p><a href="./legal/terms&conditions.html">Terms & Conditions</a></p>
+                            <p><a href="./legal/privacypolicy.html">Privacy Policy</a></p>
+                            <p><a href="./legal/disclaimer.html">Disclaimer</a></p>
                         </div>
                     </div>
                 </div>
