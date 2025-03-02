@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="row text-center text-md-start">
                         <!-- Contact Us -->
                         <div class="col-12 col-md-4 mb-3 mb-md-0">
-                            <h5>Contact Us</h5>
+                            <h5 data-bs-toggle="modal" data-bs-target="#contactModal">Contact Us</h5>
                             <p>Kolkata, West Bengal, India (Online Operations)</p>
                             <p>Phone: +91 8910324860</p>
                         </div>

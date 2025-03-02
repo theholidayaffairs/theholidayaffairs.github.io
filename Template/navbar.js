@@ -29,13 +29,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                     <li><a class="dropdown-item fw-bold" href="./destinations/northeastindia.html">Northeast India</a></li>
                                     <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/shillong.html">Shillong</a></li>
                                     <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/cherrapunji.html">Cherrapunji</a></li>
+                                    <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/kaziranga.html">Kaziranga</a></li>
                                     <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/arunachalpradesh.html">Arunachal Pradesh</a></li>
                                     <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/assam&guwahati.html">Assam & Guwahati</a></li>
                                 </ul>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact Us</a>
+                                <a class="nav-link nav-close" href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact Us</a>
                             </li>
                         </ul>
                     </div>

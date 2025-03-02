@@ -159,6 +159,10 @@ html {
     text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
 }
 
+.text-mycolor {
+    color: #f08700 !important;
+}
+
 .txt-typing::after {
     content: "|";
     /* Cursor */
@@ -175,7 +179,8 @@ html {
 /* ------------------------------------------------ */
 /* Modal Background */
 .custom-blur {
-    background-image: url('/Asset/img/modal.jpg'); /* Ensure path is correct */
+    background-image: url('/Asset/img/modal.jpg');
+    /* Ensure path is correct */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -193,7 +198,8 @@ html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Dark transparent overlay */
+    background: rgba(0, 0, 0, 0.5);
+    /* Dark transparent overlay */
     backdrop-filter: blur(-1px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 10px;
@@ -207,5 +213,102 @@ html {
     z-index: 2;
 }
 
+/* ------------------------------------------------ */
+/* CSS for Gallery */
+.gallery-item {
+    width: 100%;
+    padding-top: 100%;
+    /* Maintains square shape */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    /* Optional: Rounded corners */
+}
+
+.gallery-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Ensures the image covers the square without stretching */
+    border-radius: 8px;
+    /* Matches the parent div */
+}
+
+/* ------------------------------------------------ */
+/* CSS for Floating Buttons */
+.floating-buttons {
+    position: fixed;
+    bottom: 20px;
+    /* Positioned above bottom */
+    right: 20px;
+    /* Moved to the right side */
+    display: flex;
+    flex-direction: column;
+    /* Stack buttons vertically */
+    gap: 10px;
+    /* Space between buttons */
+    z-index: 1000;
+}
+
+/* Floating Button Styles */
+.whatsapp-float,
+.call-float {
+    width: 55px;
+    height: 55px;
+    background-color: #25D366;
+    /* WhatsApp Green */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    text-decoration: none;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+/* Different color for Call button */
+.call-float {
+    background-color: #f08700;
+    /* Call Button Green */
+}
+
+/* Hover effect */
+.whatsapp-float:hover,
+.call-float:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+/* Ringing Animation */
+@keyframes ring {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    25% {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    50% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    75% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.animate-ring {
+    animation: ring 1.5s infinite ease-in-out;
+}
 
 /* ------------------------------------------------ */
