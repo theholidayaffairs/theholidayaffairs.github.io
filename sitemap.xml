@@ -13,7 +13,7 @@
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://www.theholidayaffairs.com/legal/terms&conditions.html</loc>
+        <loc>https://www.theholidayaffairs.com/legal/terms%26conditions.html</loc>
         <priority>0.7</priority>
     </url>
     <url>
@@ -41,7 +41,7 @@
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://www.theholidayaffairs.com/destinations/northeastindia/assam&guwahati.html</loc>
+        <loc>https://www.theholidayaffairs.com/destinations/northeastindia/assam%26guwahati.html</loc>
         <priority>0.9</priority>
     </url>
 </urlset>
