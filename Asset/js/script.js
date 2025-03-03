@@ -133,7 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
   images.forEach((img) => {
     img.onload = function () {
       this.style.display = "block"; // Show image when loaded
-      this.previousElementSibling.style.display = "none"; // Hide loader
+      let loader = this.closest(".gallery-item")?.querySelector(".loader");
+      if (loader) {
+        loader.style.display = "none"; // Hide loader
+      }
     };
   });
 });
