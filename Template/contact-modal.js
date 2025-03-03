@@ -43,44 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Append modal to body
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-  //-------------------------------------------------------------------------
-  // Initialize EmailJS (Add this once at the top)
-  emailjs.init("Vy-P3sRvFxc47msiH"); // Replace with your EmailJS Public Key
-
-  // Function to send email
-  function sendEmail(name, mobile, email, message) {
-    emailjs
-      .send("service_qldkq99", "template_jtdvg0f", {
-        name: name,
-        mobile: mobile,
-        email: email,
-        message: message,
-        date: new Date().toLocaleString(), // Add date
-      })
-      .then(() => {
-        console.log("📧 Email sent successfully!");
-      })
-      .catch((error) => {
-        console.error("❌ Email sending failed:", error);
-      });
-  }
-  //-------------------------------------------------------------------------
-
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCHLhBPPXm5okf5jgseiRxgkz3ELexBEOc",
-    authDomain: "theholidayaffairs-1f869.firebaseapp.com",
-    databaseURL: "https://theholidayaffairs-1f869-default-rtdb.firebaseio.com/",
-    projectId: "theholidayaffairs-1f869",
-    storageBucket: "theholidayaffairs-1f869.appspot.com",
-    messagingSenderId: "126766895295",
-    appId: "1:126766895295:web:73247c13070275aaa3760a",
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const contactFormDB = firebase.database().ref("contactForm"); // ✅ Fixed Path
-
   // Handle form submission
   document
     .getElementById("contactForm")
@@ -91,47 +53,91 @@ document.addEventListener("DOMContentLoaded", function () {
       let mobile = document.getElementById("mobile").value.trim();
       let email = document.getElementById("email").value.trim();
       let message = document.getElementById("message").value.trim();
-      let timestamp = Date.now(); // ✅ Fixed timestamp (now a number)
 
       if (!name || !mobile) {
         alert("⚠️ Full Name and Mobile Number are required.");
         return;
       }
 
-      // Save data to Firebase
-      let newContactEntry = contactFormDB.push();
-      newContactEntry
-        .set({
-          name: name,
-          mobile: mobile,
-          email: email,
-          message: message,
-          read: false,
-          timestamp: timestamp, // ✅ Now a number
-        })
-        .then(() => {
-          console.log("✅ Data saved successfully!");
-          document.getElementById("successMessage").classList.remove("d-none");
+      // Data to send
+      let formData = {
+        name: name,
+        mobile: mobile,
+        email: email,
+        message: message,
+      };
 
-          let errorMsg = document.getElementById("errorMessage");
-          if (errorMsg) errorMsg.classList.add("d-none");
+      // Send data to Cloudflare Worker
+      fetch("https://tha-contact-form.theholidayaffairs.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+        .then((response) => response.json())
+        .then((responseData) => {
+          // If the response indicates success
+          if (responseData.message === "Data sent to Firebase successfully") {
+            // Initialize EmailJS with the public key from the Cloudflare response
+            emailjs.init(responseData.emailjsPublicKey); // Initialize with the public key from the response
 
-          document.getElementById("contactForm").reset();
+            document
+              .getElementById("successMessage")
+              .classList.remove("d-none");
+            document.getElementById("errorMessage").classList.add("d-none");
 
-          // Hide form
-          document.getElementById("contactForm").classList.add("d-none");
+            // If email sending is enabled, send email
+            if (responseData.emailEnabled) {
+              sendEmail(
+                name,
+                mobile,
+                email,
+                message,
+                responseData.emailServiceId,
+                responseData.emailTemplateId
+              );
+            }
 
-          // Send email notification after data is saved
-          sendEmail(name, mobile, email, message);
+            document.getElementById("contactForm").reset();
+            document.getElementById("contactForm").classList.add("d-none");
+          } else {
+            throw new Error(
+              "Error from Cloudflare Worker: " + responseData.message
+            );
+          }
         })
         .catch((error) => {
-          console.error("❌ Error saving data:", error);
+          console.error("❌ Error sending data:", error);
           let errorMsg = document.getElementById("errorMessage");
           if (errorMsg) errorMsg.classList.remove("d-none");
 
           document.getElementById("successMessage").classList.add("d-none");
         });
     });
+
+  // Function to send email dynamically using values from response
+  function sendEmail(
+    name,
+    mobile,
+    email,
+    message,
+    emailServiceId,
+    emailTemplateId
+  ) {
+    emailjs
+      .send(emailServiceId, emailTemplateId, {
+        name: name,
+        mobile: mobile,
+        email: email,
+        message: message,
+        date: new Date().toLocaleString(),
+      })
+      .then(() => {
+        console.log("📧 Email sent successfully!");
+      })
+      .catch((error) => {
+        console.error("❌ Email sending failed:", error);
+      });
+  }
 
   // Function to reset form and messages
   function resetContactForm() {
