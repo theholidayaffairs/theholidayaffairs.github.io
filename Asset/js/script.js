@@ -44,15 +44,14 @@ document.addEventListener("DOMContentLoaded", function () {
     activeCaption.dataset.typing = "true"; // Mark as active
   }
 
-  document
-    .querySelector("#homeCarousel")
-    .addEventListener("slide.bs.carousel", function () {
+  // Ensure #homeCarousel exists before adding event listeners
+  let homeCarousel = document.querySelector("#homeCarousel");
+  if (homeCarousel) {
+    homeCarousel.addEventListener("slide.bs.carousel", function () {
       resetTypingEffect(); // Clear text before the next slide appears
     });
 
-  document
-    .querySelector("#homeCarousel")
-    .addEventListener("slid.bs.carousel", function () {
+    homeCarousel.addEventListener("slid.bs.carousel", function () {
       let newActiveCaption = document.querySelector(
         ".carousel-item.active .typing-text"
       );
@@ -61,12 +60,14 @@ document.addEventListener("DOMContentLoaded", function () {
         typeEffect(newActiveCaption);
       }
     });
+  }
 });
 
 // ---------------------------
 // Typing Animation
 document.addEventListener("DOMContentLoaded", function () {
   let typingElement = document.getElementById("typing");
+  if (!typingElement) return; // Prevents error if element doesn't exist
   let text = typingElement.innerText.trim(); // Get the existing text inside <h2>
   let index = 0;
   let isDeleting = false;
@@ -104,6 +105,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const itineraryTab = document.getElementById("itinerary-tab");
   const aboutSection = document.getElementById("about-section");
   const itinerarySection = document.getElementById("itinerary-section");
+
+  if (!aboutTab || !itineraryTab || !aboutSection || !itinerarySection) return; // Prevents error if elements don't exist
 
   aboutTab.addEventListener("click", function (event) {
     event.preventDefault(); // Prevents redirection
