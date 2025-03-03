@@ -73,26 +73,71 @@ document.addEventListener("DOMContentLoaded", function () {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
-        .then(async (response) => {
-          const responseData = await response.json();
+        .then((response) => response.json())
+        .then((responseData) => {
+          // If the response indicates success
+          if (responseData.message === "Data sent to Firebase successfully") {
+            // Initialize EmailJS with the public key from the Cloudflare response
+            emailjs.init(responseData.emailjsPublicKey); // Initialize with the public key from the response
 
-          if (response.ok) {
             document
               .getElementById("successMessage")
               .classList.remove("d-none");
             document.getElementById("errorMessage").classList.add("d-none");
+
+            // If email sending is enabled, send email
+            if (responseData.emailEnabled) {
+              sendEmail(
+                name,
+                mobile,
+                email,
+                message,
+                responseData.emailServiceId,
+                responseData.emailTemplateId
+              );
+            }
+
             document.getElementById("contactForm").reset();
             document.getElementById("contactForm").classList.add("d-none");
           } else {
-            throw new Error(responseData.message || "Unknown error");
+            throw new Error(
+              "Error from Cloudflare Worker: " + responseData.message
+            );
           }
         })
         .catch((error) => {
-          console.error("❌ Error:", error);
-          document.getElementById("errorMessage").classList.remove("d-none");
+          console.error("❌ Error sending data:", error);
+          let errorMsg = document.getElementById("errorMessage");
+          if (errorMsg) errorMsg.classList.remove("d-none");
+
           document.getElementById("successMessage").classList.add("d-none");
         });
     });
+
+  // Function to send email dynamically using values from response
+  function sendEmail(
+    name,
+    mobile,
+    email,
+    message,
+    emailServiceId,
+    emailTemplateId
+  ) {
+    emailjs
+      .send(emailServiceId, emailTemplateId, {
+        name: name,
+        mobile: mobile,
+        email: email,
+        message: message,
+        date: new Date().toLocaleString(),
+      })
+      .then(() => {
+        console.log("📧 Email sent successfully!");
+      })
+      .catch((error) => {
+        console.error("❌ Email sending failed:", error);
+      });
+  }
 
   // Function to reset form and messages
   function resetContactForm() {
