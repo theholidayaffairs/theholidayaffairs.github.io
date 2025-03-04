@@ -140,6 +140,19 @@ html {
     background-color: #d97500;
 }
 
+.bg-custom:hover {
+    background-color: #d97500;
+}
+
+.bg-custom {
+    background-color: #d97500;
+}
+
+.text-success-custom {
+    --bs-text-opacity: 1;
+    color: rgb(131 243 191) !important;
+}
+
 /* ------------------------------------------------ */
 /* Terms & Conditions */
 .terms-content p {
