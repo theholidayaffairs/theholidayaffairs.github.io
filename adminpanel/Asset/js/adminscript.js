@@ -1,3 +1,4 @@
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCHLhBPPXm5okf5jgseiRxgkz3ELexBEOc",
   authDomain: "theholidayaffairs-1f869.firebaseapp.com",
@@ -8,50 +9,57 @@ const firebaseConfig = {
   appId: "1:126766895295:web:73247c13070275aaa3760a",
 };
 
+// ============================================================
+// Initialize Firebase, auth & database
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.database();
 
-let allEntries = [];
-let currentPage = 1;
-const pageSize = 20;
+// ============================================================
+// Login
+function login() {
+  const email = document.getElementById("usernameInput").value;
+  const password = document.getElementById("passwordInput").value;
 
-function checkPassword() {
-  let username = document.getElementById("usernameInput").value;
-  let password = document.getElementById("passwordInput").value;
-
-  if (username === "" || password === "") {
-    document.getElementById("errorMessage").classList.remove("d-none");
-    document.getElementById("errorText1").classList.remove("d-none");
-    document.getElementById("errorText2").classList.add("d-none");
-    document.getElementById("errorText3").classList.add("d-none");
-    return;
-  }
-
-  db.ref(username)
-    .once("value")
-    .then((snapshot) => {
-      if (snapshot.val() === password) {
-        document.getElementById("passwordSection").classList.add("d-none");
-        document.getElementById("dataSection").classList.remove("d-none");
-        document.getElementById("contactHeader").classList.remove("d-none");
-        fetchContactFormData();
-      } else {
-        document.getElementById("errorMessage").classList.remove("d-none");
-        document.getElementById("errorText1").classList.add("d-none");
-        document.getElementById("errorText2").classList.remove("d-none");
-        document.getElementById("errorText3").classList.add("d-none");
-        return;
-      }
+  auth
+    .signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      document.getElementById("passwordSection").classList.add("d-none");
+      document.getElementById("dataSection").classList.remove("d-none");
+      document.getElementById("contactHeader").classList.remove("d-none");
+      document.getElementById("logoutSection").classList.remove("d-none");
+      fetchContactFormData();
     })
     .catch((error) => {
       document.getElementById("errorMessage").classList.remove("d-none");
       document.getElementById("errorText1").classList.add("d-none");
-      document.getElementById("errorText2").classList.add("d-none");
-      document.getElementById("errorText3").classList.remove("d-none");
-      return;
+      document.getElementById("errorText2").classList.remove("d-none");
+      document.getElementById("errorText3").classList.add("d-none");
     });
 }
 
+// ============================================================
+// Logout
+function logout() {
+  auth.signOut(auth).then(() => {
+    document.getElementById("passwordSection").classList.remove("d-none");
+    document.getElementById("dataSection").classList.add("d-none");
+    document.getElementById("contactHeader").classList.add("d-none");
+    document.getElementById("logoutSection").classList.add("d-none");
+    document.getElementById("errorMessage").classList.add("d-none");
+    document.getElementById("errorText1").classList.add("d-none");
+    document.getElementById("errorText2").classList.add("d-none");
+    document.getElementById("errorText3").classList.add("d-none");
+  });
+}
+
+// ============================================================
+// Initialize Variable for Pagination
+let allEntries = [];
+let currentPage = 1;
+const pageSize = 20;
+
+// Fetch Contact Form Data
 function fetchContactFormData() {
   db.ref("/contactForm")
     .orderByChild("timestamp")
@@ -81,6 +89,8 @@ function toggleUnreadFilter() {
   updateTable();
 }
 
+// ============================================================
+// Update Contact Form Table
 function updateTable() {
   let tableBody = document.getElementById("dataTableBody");
   tableBody.innerHTML = "";
@@ -137,6 +147,8 @@ function updateTable() {
   updatePaginationUI(filteredEntries.length);
 }
 
+// ============================================================
+//
 function showModal(title, message, type, callback) {
   document.getElementById("modalTitle").innerText = title;
   document.getElementById("modalMessage").innerText = message;
@@ -165,6 +177,8 @@ function showModal(title, message, type, callback) {
   modal.show();
 }
 
+// ============================================================
+// Delete Contact Entry
 function deleteEntry(entryId) {
   showModal(
     "Confirm Deletion",
@@ -183,6 +197,8 @@ function deleteEntry(entryId) {
   );
 }
 
+// ============================================================
+// Mark the Contact Data As Read
 function markAsRead(entryId, currentStatus) {
   let entryRef = db.ref(`/contactForm/${entryId}`);
   let newStatus = !currentStatus; // Toggle between true and false
@@ -195,6 +211,8 @@ function markAsRead(entryId, currentStatus) {
     .catch((error) => console.error("Error updating status:", error));
 }
 
+// ============================================================
+// Excell Export
 function exportToExcel(type) {
   let filteredEntries =
     type === "unread" ? allEntries.filter((entry) => !entry.read) : allEntries;
@@ -236,6 +254,8 @@ function exportToExcel(type) {
   modalInstance.hide();
 }
 
+// ============================================================
+// Update Pagination
 function updatePaginationUI(totalEntries) {
   let totalPages = Math.ceil(totalEntries / pageSize) || 1;
   document.getElementById("prevPage").disabled = currentPage <= 1;
@@ -262,6 +282,8 @@ document.getElementById("prevPage").addEventListener("click", () => {
   }
 });
 
+// ============================================================
+// Timestamp Format
 function formatTimestamp(isoString) {
   let date = new Date(isoString);
   let options = {
@@ -275,7 +297,7 @@ function formatTimestamp(isoString) {
   return date.toLocaleString("en-US", options).replace(",", "");
 }
 
-// --------------------------------
+// ============================================================
 // Setting Modal Scripts for email enable/disable
 
 let emailSendingEnabled = false; // Default state
@@ -326,4 +348,4 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchEmailSendingStatus();
 });
 
-// --------------------------------
+// ============================================================
