@@ -115,32 +115,45 @@ function updateTable() {
     let statusText = entry.read ? "Read" : "Unread";
     let buttonText = entry.read ? "Mark as Unread" : "Mark as Read";
 
+    // Ensure message is properly handled
+    let message = entry.message ? entry.message.trim() : "N/A";
+    let truncatedMessage =
+      message.length > 30 ? message.substring(0, 30) + "..." : message;
+
     let row = `<tr class='${rowClass}'>
-    <td>${formattedDate}</td>
-    <td>${entry.name}</td>
-    <td>${entry.mobile}</td>
-    <td>${entry.email || "N/A"}</td>
-    <td>${entry.message || "N/A"}</td>
-    <td>${statusText}</td>
-    <td>
-        <div class="d-flex flex-wrap gap-2 justify-content-center">
-            <button class='btn btn-${
-              entry.read ? "warning" : "success"
-            } btn-sm d-flex align-items-center' 
-                onclick='markAsRead("${entry.id}", ${entry.read})'
-                data-bs-toggle="tooltip" title="${buttonText}">
-                <i class="fa-solid ${
-                  entry.read ? "fa-envelope-open" : "fa-envelope"
-                }"></i>
-            </button>
-            <button class='btn btn-danger btn-sm d-flex align-items-center' 
-                onclick='deleteEntry("${entry.id}")' 
-                data-bs-toggle="tooltip" title="Delete">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </div>
-    </td>
-</tr>`;
+      <td>${formattedDate}</td>
+      <td>${entry.name}</td>
+      <td>${entry.mobile}</td>
+      <td>${entry.email || "N/A"}</td>
+      <td class="text-truncate" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          ${truncatedMessage}
+      </td>
+      <td>${statusText}</td>
+      <td>
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+              <button class='btn btn-${
+                entry.read ? "warning" : "success"
+              } btn-sm d-flex align-items-center' 
+                  onclick='markAsRead("${entry.id}", ${entry.read})'
+                  data-bs-toggle="tooltip" title="${buttonText}">
+                  <i class="fa-solid ${
+                    entry.read ? "fa-envelope-open" : "fa-envelope"
+                  }"></i>
+              </button>
+              <button class='btn btn-info btn-sm d-flex align-items-center' 
+                  onclick='viewMessage("${entry.id}")' 
+                  data-bs-toggle="tooltip" title="View Message">
+                  <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class='btn btn-danger btn-sm d-flex align-items-center' 
+                  onclick='deleteEntry("${entry.id}")' 
+                  data-bs-toggle="tooltip" title="Delete">
+                  <i class="fa-solid fa-trash"></i>
+              </button>
+          </div>
+      </td>
+    </tr>`;
+
     tableBody.innerHTML += row;
   });
 
@@ -148,7 +161,29 @@ function updateTable() {
 }
 
 // ============================================================
-//
+// Function to open modal with full message
+function viewMessage(id) {
+  let entry = allEntries.find((e) => e.id === id);
+  if (entry) {
+    // Get the paragraph where the message should be displayed
+    let messageElement = document.getElementById("contactMessage"); // Now correct ID
+    if (messageElement) {
+      messageElement.innerText = entry.message || "No message available.";
+    } else {
+      console.error("contactMessage element not found!");
+    }
+
+    // Open the modal
+    let modalElement = document.getElementById("contactMessageModal"); // Corrected modal ID
+    let modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  } else {
+    console.error("Message not found for ID:", id);
+  }
+}
+
+// ============================================================
+// Show Modal
 function showModal(title, message, type, callback) {
   document.getElementById("modalTitle").innerText = title;
   document.getElementById("modalMessage").innerText = message;

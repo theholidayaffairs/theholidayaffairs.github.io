@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             </div>
                             <div class="mb-3">
                                 <label for="message" class="form-label">Comment Your Requirement</label>
-                                <textarea class="form-control" id="message" name="message" rows="3" placeholder="Enter your message"></textarea>
+                                <textarea class="form-control" id="message" name="message" rows="3" placeholder="Please enter your message within 200 words." maxlength="200"></textarea>
                             </div>
                             <div class="d-flex justify-content-center">
                                 <button type="submit" class="btn btn-custom">Submit</button>
