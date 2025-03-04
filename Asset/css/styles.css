@@ -148,6 +148,10 @@ html {
     background-color: #d97500;
 }
 
+.text-success-custom {
+    --bs-text-opacity: 1;
+    color: rgb(131 243 191) !important;
+}
 
 /* ------------------------------------------------ */
 /* Terms & Conditions */

@@ -7,12 +7,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         <h5 class="modal-title text-white" id="contactModalLabel">Contact Us</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body text-white">
-                        <div id="successMessage" class="text-center d-none">
-                            <h5 class="form-label">✅ Thanks for contacting us! We will get back to you soon.</h5>
-                        </div>
-                        <div id="errorMessage" class="text-center text-danger d-none">
-                            <h5 class="form-label">❌ Something went wrong. Please try again later.</h5>
+                      <div class="modal-body text-white">
+                        <div id="responseMessage" class="text-center d-none">
+                          <h5 id="responseText" class="form-label">
+                            <i id="responseIcon" class="fa-solid"></i>
+                            <span id="responseTextContent"></span>
+                          </h5>
                         </div>
                         <form id="contactForm">
                             <div class="mb-3">
@@ -75,17 +75,26 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => response.json())
         .then((responseData) => {
-          // If the response indicates success
-          if (responseData.message === "Data sent to Firebase successfully") {
-            // Initialize EmailJS with the public key from the Cloudflare response
-            emailjs.init(responseData.emailjsPublicKey); // Initialize with the public key from the response
+          const responseMessage = document.getElementById("responseMessage");
+          const responseText = document.getElementById("responseText");
+          const responseIcon = document.getElementById("responseIcon");
+          const responseTextContent = document.getElementById(
+            "responseTextContent"
+          );
 
-            document
-              .getElementById("successMessage")
-              .classList.remove("d-none");
-            document.getElementById("errorMessage").classList.add("d-none");
+          if (
+            responseData.success === true &&
+            responseData.message === "Data sent to Firebase successfully"
+          ) {
+            emailjs.init(responseData.emailjsPublicKey);
 
-            // If email sending is enabled, send email
+            responseIcon.className =
+              "fa-solid fa-circle-check text-success-custom";
+            responseTextContent.textContent =
+              "Thanks for contacting us! We will get back to you soon.";
+            responseText.classList.add("text-success-custom");
+            responseText.classList.remove("text-danger");
+
             if (responseData.emailEnabled) {
               sendEmail(
                 name,
@@ -100,17 +109,30 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("contactForm").reset();
             document.getElementById("contactForm").classList.add("d-none");
           } else {
-            throw new Error(
-              "Error from Cloudflare Worker: " + responseData.message
-            );
+            responseIcon.className = "fa-solid fa-circle-xmark text-danger";
+            responseTextContent.textContent =
+              "Something went wrong. Please try again later.";
+            responseText.classList.add("text-danger");
+            responseText.classList.remove("text-success-custom");
           }
+          responseMessage.classList.remove("d-none");
         })
         .catch((error) => {
-          console.error("❌ Error sending data:", error);
-          let errorMsg = document.getElementById("errorMessage");
-          if (errorMsg) errorMsg.classList.remove("d-none");
+          const responseMessage = document.getElementById("responseMessage");
+          const responseText = document.getElementById("responseText");
+          const responseIcon = document.getElementById("responseIcon");
+          const responseTextContent = document.getElementById(
+            "responseTextContent"
+          );
 
-          document.getElementById("successMessage").classList.add("d-none");
+          responseIcon.className = "fa-solid fa-circle-xmark text-danger";
+          responseTextContent.textContent =
+            "Something went wrong. Please try again later.";
+          responseText.classList.add("text-danger");
+          responseText.classList.remove("text-success-custom");
+
+          responseMessage.classList.remove("d-none");
+          console.error("❌ Error sending data:", error);
         });
     });
 
@@ -141,10 +163,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to reset form and messages
   function resetContactForm() {
-    document.getElementById("contactForm").classList.remove("d-none"); // Show form
-    document.getElementById("contactForm").reset(); // Clear form fields
-    document.getElementById("successMessage").classList.add("d-none"); // Hide success message
-    document.getElementById("errorMessage").classList.add("d-none"); // Hide error message
+    const contactForm = document.getElementById("contactForm");
+    const responseMessage = document.getElementById("responseMessage");
+
+    if (contactForm) {
+      contactForm.classList.remove("d-none"); // Show form
+      contactForm.reset(); // Clear form fields
+    }
+
+    if (responseMessage) {
+      responseMessage.classList.add("d-none"); // Hide response message
+    }
   }
 
   // Reset form when modal is opened
