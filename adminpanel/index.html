@@ -21,11 +21,10 @@
 
     <br><br>
     <!-- Content Section -->
-    <div class="container mt-5 p-4 shadow-lg bg-white rounded position-relative" data-bs-toggle="tooltip"
-        title="Logout">
+    <div class="container mt-5 p-4 shadow-lg bg-white rounded position-relative">
         <!-- Logout Button -->
-        <button id="logoutSection" class="btn btn-danger position-absolute top-0 end-0 m-3 d-none" id="logoutButton"
-            onclick="logout()">
+        <button id="logoutSection" class="btn btn-danger position-absolute top-0 end-0 m-3 d-none" onclick="logout()"
+            data-bs-toggle="tooltip" title="Logout">
             <i class="fa-solid fa-power-off"></i>
         </button>
         <h4 class="text-center">Admin Panel</h4>
@@ -184,6 +183,24 @@
                     <button id="modalConfirm" class="btn btn-danger btn-sm d-none">
                         <i class="fa-solid fa-check"></i> Confirm
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Message Modal -->
+    <div class="modal fade" id="contactMessageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Message Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <p id="contactMessage">Loading...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
