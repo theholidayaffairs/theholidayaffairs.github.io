@@ -122,6 +122,42 @@ html {
     }
 }
 
+/* Zoom In Effect of Carousel Image */
+@keyframes zoomInOut {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.zoom-effect {
+    height: 500px;
+    object-fit: cover;
+    animation: zoomInOut 5s ease-in-out infinite;
+}
+
+.carousel-item.active .zoom-effect {
+    animation: zoomInOut 5s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+    .zoom-effect {
+        height: 300px;
+        animation: zoomInOut 5s ease-in-out infinite;
+    }
+
+    .carousel-item.active .zoom-effect {
+        animation: zoomInOut 5s ease-in-out infinite;
+    }
+}
+
 /* ------------------------------------------------ */
 /* Button Styling */
 
@@ -325,3 +361,10 @@ html {
 }
 
 /* ------------------------------------------------ */
+
+.container {
+    background-image: url(/Asset/img/bg-card.gif);
+    background-repeat: no-repeat;
+    background-size: cover; /* or use 'contain' based on your needs */
+    background-position: center;
+}
