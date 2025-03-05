@@ -49,6 +49,14 @@ document.addEventListener("DOMContentLoaded", function () {
     .addEventListener("submit", function (event) {
       event.preventDefault();
 
+      const submitButton = this.querySelector("button[type='submit']");
+      // Save the original button content
+      const originalButtonContent = submitButton.innerHTML;
+
+      // 🚀 Show loader inside the button
+      submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...`;
+      submitButton.disabled = true;
+
       let name = document.getElementById("name").value.trim();
       let mobile = document.getElementById("mobile").value.trim();
       let email = document.getElementById("email").value.trim();
@@ -56,6 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!name || !mobile) {
         alert("⚠️ Full Name and Mobile Number are required.");
+        submitButton.innerHTML = originalButtonContent; // ✅ Restore button text
+        submitButton.disabled = false; // ✅ Re-enable button
         return;
       }
 
@@ -133,6 +143,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
           responseMessage.classList.remove("d-none");
           console.error("❌ Error sending data:", error);
+        })
+        .finally(() => {
+          submitButton.innerHTML = originalButtonContent; // ✅ Restore button text
+          submitButton.disabled = false; // ✅ Re-enable button
         });
     });
 

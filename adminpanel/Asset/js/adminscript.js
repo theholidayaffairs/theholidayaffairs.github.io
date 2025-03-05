@@ -18,7 +18,7 @@ const db = firebase.database();
 // ============================================================
 // Login
 function login() {
-  const email = document.getElementById("usernameInput").value;
+  const email = document.getElementById("emailInput").value;
   const password = document.getElementById("passwordInput").value;
 
   auth
