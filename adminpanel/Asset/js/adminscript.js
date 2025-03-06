@@ -21,6 +21,14 @@ function login() {
   const email = document.getElementById("emailInput").value;
   const password = document.getElementById("passwordInput").value;
 
+  if (!email || !password) {
+    document.getElementById("errorMessage").classList.remove("d-none");
+    document.getElementById("errorText1").classList.remove("d-none");
+    document.getElementById("errorText2").classList.add("d-none");
+    document.getElementById("errorText3").classList.add("d-none");
+    return;
+  }
+
   auth
     .signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
