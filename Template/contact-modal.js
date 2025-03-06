@@ -17,15 +17,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         <form id="contactForm">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full Name<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" autocomplete="name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="mobile" class="form-label">Mobile Number<span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" required>
+                                <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" autocomplete="tel" required>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email ID</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" autocomplete="email">
                             </div>
                             <div class="mb-3">
                                 <label for="message" class="form-label">Comment Your Requirement</label>
