@@ -361,10 +361,12 @@ html {
 }
 
 /* ------------------------------------------------ */
-
-.container {
+/* Container Background Giffy */
+.container, .gifeffect {
     background-image: url(/Asset/img/bg-card.gif);
     background-repeat: no-repeat;
-    background-size: cover; /* or use 'contain' based on your needs */
+    background-size: cover;
     background-position: center;
 }
+
+/* ------------------------------------------------ */

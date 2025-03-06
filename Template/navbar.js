@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <a class="nav-link dropdown-toggle" href="#" id="destinationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Destinations
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="destinationsDropdown">
+                                <ul class="dropdown-menu gifeffect" aria-labelledby="destinationsDropdown">
                                     <li><a class="dropdown-item fw-bold" href="./destinations/northeastindia.html">Northeast India</a></li>
                                     <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/shillong.html">Shillong</a></li>
                                     <li><a class="dropdown-item ps-4" href="./destinations/northeastindia/cherrapunji.html">Cherrapunji</a></li>
