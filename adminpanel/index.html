@@ -69,7 +69,7 @@
                     <i class="fa-solid fa-file-excel me-2"></i> Export to Excel
                 </button>
                 <button id="refreshBtn" class="btn btn-secondary btn-sm px-3 d-flex align-items-center"
-                    onclick="fetchContactFormData()">
+                    onclick="refreshAdminPanel()">
                     <i class="fa-solid fa-rotate-right me-2"></i> Refresh
                 </button>
                 <button id="settingsBtn" class="btn btn-warning btn-sm px-3 d-flex align-items-center"
@@ -110,6 +110,31 @@
                 </div>
             </div>
 
+            <!-- Filter Date, Name, Mobile, Email -->
+            <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+                <!-- Search Box -->
+                <input type="text" id="searchInput" class="form-control form-control-sm"
+                    placeholder="Search by Name, Mobile, or Email" oninput="applySearchFilter()"
+                    style="max-width: 300px;">
+
+                <!-- Date Filters -->
+                <input type="date" id="fromDate" class="form-control form-control-sm" style="max-width: 200px;"
+                    onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)" onchange="validateDateRange()"
+                    placeholder="From Date">
+
+                <input type="date" id="toDate" class="form-control form-control-sm" style="max-width: 200px;"
+                    onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)" onchange="validateDateRange()"
+                    placeholder="To Date">
+
+                <!-- Filter Buttons -->
+                <button class="btn btn-primary btn-sm px-3" onclick="applyDateFilter()">
+                    <i class="fa-solid fa-filter me-2"></i> Apply Filter
+                </button>
+                <button class="btn btn-secondary btn-sm px-3" onclick="resetFilters()">
+                    <i class="fa-solid fa-ban me-2"></i> Reset
+                </button>
+            </div>
+
             <!-- Contact Us Data Table -->
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle text-center">
@@ -144,10 +169,13 @@
     <!-- Export Modal -->
     <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">Export Data</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-custom text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-solid fa-file-export me-2"></i> Export Data
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
                     <p class="fw-semibold">Select the type of export:</p>
@@ -160,7 +188,44 @@
                             onclick="exportToExcel('unread')">
                             <i class="fa-solid fa-envelope-open-text me-2"></i> Export Unread Messages Only
                         </button>
+                        <button class="btn btn-info btn-sm d-flex align-items-center px-3 py-2" data-bs-toggle="modal"
+                            data-bs-target="#exportByDateModal">
+                            <i class="fa-solid fa-calendar me-2"></i> Export by Date
+                        </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export By Date Modal -->
+    <div class="modal fade" id="exportByDateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 p-3">
+                <div class="modal-header bg-custom text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-solid fa-calendar-day me-2"></i> Export Data by Date
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <input type="date" id="exportFromDate" class="form-control form-control-sm"
+                            style="max-width: 250px;" onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)"
+                            placeholder="From Date">
+                        <input type="date" id="exportToDate" class="form-control form-control-sm"
+                            style="max-width: 250px;" onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)"
+                            placeholder="To Date">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-secondary btn-sm px-3 shadow-sm" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i> Cancel
+                    </button>
+                    <button class="btn btn-primary btn-sm px-3 shadow-sm" onclick="exportToExcelByDate()">
+                        <i class="fa-solid fa-download"></i> Export
+                    </button>
                 </div>
             </div>
         </div>
@@ -191,17 +256,53 @@
 
     <!-- Contact Message Modal -->
     <div class="modal fade" id="contactMessageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 600px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Message Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 p-3">
+                <div class="modal-header bg-custom text-white d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-solid fa-envelope-open-text me-2"></i> Message Details
+                    </h5>
+                    <div>
+                        <button id="markReadBtn" class="btn btn-success btn-sm me-2 d-none" onclick="toggleReadStatus()"
+                            data-bs-toggle="tooltip" title="Mark as Read">
+                            <i class="fa-solid fa-envelope"></i>
+                        </button>
+                        <button id="markUnreadBtn" class="btn btn-warning btn-sm me-2 d-none"
+                            onclick="toggleReadStatus()" data-bs-toggle="tooltip" title="Mark as Unread">
+                            <i class="fa-solid fa-envelope-open"></i>
+                        </button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
                 </div>
-                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                    <p id="contactMessage">Loading...</p>
+                <div class="modal-body">
+                    <div class="p-3 bg-light rounded-3 shadow-sm">
+                        <p class="fw-semibold text-secondary mb-1">
+                            <i class="fa-solid fa-user text-primary me-2"></i> <span
+                                id="messageSender">Loading...</span>
+                        </p>
+                        <p class="fw-semibold text-secondary mb-1">
+                            <i class="fa-solid fa-phone text-success me-2"></i> <span
+                                id="messageMobile">Loading...</span>
+                        </p>
+                        <p class="fw-semibold text-secondary mb-3">
+                            <i class="fa-solid fa-envelope text-danger me-2"></i> <span
+                                id="messageEmail">Loading...</span>
+                        </p>
+                        <hr>
+                        <div id="messageContainer" class="p-2 rounded bg-white shadow-sm"
+                            style="max-height: 250px; overflow-y: auto;">
+                            <p class="fw-normal text-dark" id="contactMessage"
+                                style="font-size: 1rem; line-height: 1.5;">
+                                Loading...
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer border-0 d-flex justify-content-center">
+                    <button type="button" class="btn btn-secondary btn-sm px-3 shadow-sm" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark"></i> Close
+                    </button>
                 </div>
             </div>
         </div>

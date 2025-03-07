@@ -68,7 +68,7 @@ let currentPage = 1;
 const pageSize = 20;
 
 // Fetch Contact Form Data
-function fetchContactFormData() {
+function fetchContactFormData(callback = null) {
   db.ref("/contactForm")
     .orderByChild("timestamp")
     .once("value")
@@ -81,7 +81,11 @@ function fetchContactFormData() {
         allEntries.push(entry);
       });
       allEntries.reverse();
-      updateTable();
+      if (callback) {
+        callback(); // Call function after fetching data
+      } else {
+        updateTable(); // Default action if no callback
+      }
     })
     .catch((error) => console.error("Error fetching data:", error));
 }
@@ -99,91 +103,179 @@ function toggleUnreadFilter() {
 
 // ============================================================
 // Update Contact Form Table
+let filteredEntries = []; // Store filtered data
+
+function applyDateFilter() {
+  const fromDate = document.getElementById("fromDate").value;
+  const toDate = document.getElementById("toDate").value;
+
+  if (!fromDate || !toDate) {
+    showModal(
+      "Missing Dates!",
+      "Please select both From and To dates before applying the filter.",
+      "alert"
+    );
+    return;
+  }
+
+  const fromTimestamp = new Date(fromDate).setHours(0, 0, 0, 0);
+  const toTimestamp = new Date(toDate).setHours(23, 59, 59, 999);
+
+  filteredEntries = allEntries.filter((entry) => {
+    let entryTimestamp = new Date(entry.timestamp).getTime();
+    return entryTimestamp >= fromTimestamp && entryTimestamp <= toTimestamp;
+  });
+
+  currentPage = 1;
+  updateTable();
+}
+
+function resetDateFilter() {
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  filteredEntries = []; // Clear filter
+  currentPage = 1; // Reset pagination
+  updateTable(); // Show all entries again
+}
+
+// Modify updateTable() to use filteredEntries when filter is applied
+let searchQuery = ""; // Stores search input
+
+// Apply search filter dynamically
+function applySearchFilter() {
+  searchQuery = document
+    .getElementById("searchInput")
+    .value.trim()
+    .toLowerCase();
+  updateTable(); // Refresh table with filtered data
+}
+
+// Reset filters (search & date)
+function resetFilters() {
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  document.getElementById("searchInput").value = "";
+  searchQuery = "";
+  filteredEntries = [];
+  currentPage = 1;
+  updateTable(); // Show all entries again
+}
+
+// Modify updateTable() to support search & date filters
 function updateTable() {
   let tableBody = document.getElementById("dataTableBody");
   tableBody.innerHTML = "";
 
-  let filteredEntries = showUnreadOnly
-    ? allEntries.filter((entry) => !entry.read)
-    : allEntries;
+  let dataToShow = filteredEntries.length > 0 ? filteredEntries : allEntries;
+
+  // Apply search filter if searchQuery is not empty
+  if (searchQuery) {
+    dataToShow = dataToShow.filter((entry) => {
+      return (
+        entry.name.toLowerCase().includes(searchQuery) ||
+        entry.mobile.includes(searchQuery) ||
+        (entry.email && entry.email.toLowerCase().includes(searchQuery))
+      );
+    });
+  }
+
+  // Apply unread filter if active
+  if (showUnreadOnly) {
+    dataToShow = dataToShow.filter((entry) => !entry.read);
+  }
 
   // Sort by timestamp (latest first)
-  filteredEntries.sort((a, b) => b.timestamp - a.timestamp);
+  dataToShow.sort((a, b) => b.timestamp - a.timestamp);
 
   // Apply pagination
-  let totalPages = Math.ceil(filteredEntries.length / pageSize) || 1;
-  let pageData = filteredEntries.slice(
+  let totalPages = Math.ceil(dataToShow.length / pageSize) || 1;
+  let pageData = dataToShow.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
   pageData.forEach((entry) => {
     let formattedDate = formatTimestamp(entry.timestamp);
-    let rowClass = entry.read ? "" : "fw-bold bg-warning"; // Highlight unread
+    let rowClass = entry.read ? "" : "fw-bold bg-warning";
     let statusText = entry.read ? "Read" : "Unread";
     let buttonText = entry.read ? "Mark as Unread" : "Mark as Read";
 
-    // Ensure message is properly handled
     let message = entry.message ? entry.message.trim() : "N/A";
     let truncatedMessage =
       message.length > 30 ? message.substring(0, 30) + "..." : message;
 
     let row = `<tr class='${rowClass}'>
-      <td>${formattedDate}</td>
-      <td>${entry.name}</td>
-      <td>${entry.mobile}</td>
-      <td>${entry.email || "N/A"}</td>
-      <td class="text-truncate" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          ${truncatedMessage}
-      </td>
-      <td>${statusText}</td>
-      <td>
-          <div class="d-flex flex-wrap gap-2 justify-content-center">
-              <button class='btn btn-${
-                entry.read ? "warning" : "success"
-              } btn-sm d-flex align-items-center' 
-                  onclick='markAsRead("${entry.id}", ${entry.read})'
-                  data-bs-toggle="tooltip" title="${buttonText}">
-                  <i class="fa-solid ${
-                    entry.read ? "fa-envelope-open" : "fa-envelope"
-                  }"></i>
-              </button>
-              <button class='btn btn-info btn-sm d-flex align-items-center' 
-                  onclick='viewMessage("${entry.id}")' 
-                  data-bs-toggle="tooltip" title="View Message">
-                  <i class="fa-solid fa-eye"></i>
-              </button>
-              <button class='btn btn-danger btn-sm d-flex align-items-center' 
-                  onclick='deleteEntry("${entry.id}")' 
-                  data-bs-toggle="tooltip" title="Delete">
-                  <i class="fa-solid fa-trash"></i>
-              </button>
-          </div>
-      </td>
-    </tr>`;
+            <td>${formattedDate}</td>
+            <td>${entry.name}</td>
+            <td>${entry.mobile}</td>
+            <td>${entry.email || "N/A"}</td>
+            <td class="text-truncate" style="max-width: 150px;">${truncatedMessage}</td>
+            <td>${statusText}</td>
+            <td>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <button class='btn btn-${
+                      entry.read ? "warning" : "success"
+                    } btn-sm' 
+                        onclick='markAsRead("${entry.id}", ${entry.read})'
+                        data-bs-toggle="tooltip" title="${buttonText}">
+                        <i class="fa-solid ${
+                          entry.read ? "fa-envelope-open" : "fa-envelope"
+                        }"></i>
+                    </button>
+                    <button class='btn btn-info btn-sm' 
+                        onclick='viewMessage("${entry.id}")' 
+                        data-bs-toggle="tooltip" title="View Message">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button class='btn btn-danger btn-sm' 
+                        onclick='deleteEntry("${entry.id}")' 
+                        data-bs-toggle="tooltip" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
 
     tableBody.innerHTML += row;
   });
 
-  updatePaginationUI(filteredEntries.length);
+  updatePaginationUI(dataToShow.length);
 }
 
 // ============================================================
 // Function to open modal with full message
+let currentMessageId = null; // Store message ID for read/unread toggle
+
 function viewMessage(id) {
   let entry = allEntries.find((e) => e.id === id);
   if (entry) {
-    // Get the paragraph where the message should be displayed
-    let messageElement = document.getElementById("contactMessage"); // Now correct ID
-    if (messageElement) {
-      messageElement.innerText = entry.message || "No message available.";
-    } else {
-      console.error("contactMessage element not found!");
-    }
+    currentMessageId = id;
 
-    // Open the modal
-    let modalElement = document.getElementById("contactMessageModal"); // Corrected modal ID
-    let modal = new bootstrap.Modal(modalElement);
+    document.getElementById("messageSender").innerText = entry.name || "N/A";
+    document.getElementById("messageMobile").innerText = entry.mobile || "N/A";
+    document.getElementById("messageEmail").innerText = entry.email || "N/A";
+    document.getElementById("contactMessage").innerText =
+      entry.message || "No message available.";
+
+    // Show correct button based on read status
+    document
+      .getElementById("markReadBtn")
+      .classList.toggle("d-none", entry.read);
+    document
+      .getElementById("markUnreadBtn")
+      .classList.toggle("d-none", !entry.read);
+
+    // Reinitialize Bootstrap tooltips
+    setTimeout(() => {
+      let tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      tooltipTriggerList.forEach((tooltip) => new bootstrap.Tooltip(tooltip));
+    }, 200); // Small delay ensures tooltips work after modal opens
+
+    let modal = new bootstrap.Modal(
+      document.getElementById("contactMessageModal")
+    );
     modal.show();
   } else {
     console.error("Message not found for ID:", id);
@@ -192,7 +284,7 @@ function viewMessage(id) {
 
 // ============================================================
 // Show Modal
-function showModal(title, message, type, callback) {
+function showModal(title, message, type, callback = null) {
   document.getElementById("modalTitle").innerText = title;
   document.getElementById("modalMessage").innerText = message;
 
@@ -202,16 +294,20 @@ function showModal(title, message, type, callback) {
 
   if (type === "confirm") {
     modalIcon.className =
-      "fa-solid fa-exclamation-triangle text-warning fa-3x mb-3";
+      "fa-solid fa-exclamation-triangle text-warning fa-3x mb-3"; // ⚠️ Warning Icon
     modalConfirm.classList.remove("d-none");
     modalConfirm.onclick = () => {
-      callback();
+      if (callback) callback();
       bootstrap.Modal.getInstance(
         document.getElementById("customModal")
       ).hide();
     };
+  } else if (title === "Deleted") {
+    modalIcon.className = "fa-solid fa-check-circle text-success fa-3x mb-3"; // ✅ Success Icon
+    modalConfirm.classList.add("d-none");
+    modalCancel.innerHTML = '<i class="fa-solid fa-times"></i> Close';
   } else {
-    modalIcon.className = "fa-solid fa-check-circle text-success fa-3x mb-3";
+    modalIcon.className = "fa-solid fa-circle-info text-primary fa-3x mb-3"; // ℹ️ Info Icon
     modalConfirm.classList.add("d-none");
     modalCancel.innerHTML = '<i class="fa-solid fa-times"></i> Close';
   }
@@ -232,8 +328,16 @@ function deleteEntry(entryId) {
       entryRef
         .remove()
         .then(() => {
+          // ✅ Show success message after deletion
           showModal("Deleted", "Entry deleted successfully.", "alert");
-          fetchContactFormData();
+
+          fetchContactFormData(() => {
+            if (filteredEntries.length > 0) {
+              applyDateFilter(); // Reapply filter if active
+            } else {
+              updateTable(); // Otherwise, just update table
+            }
+          });
         })
         .catch((error) => console.error("Error deleting entry:", error));
     }
@@ -244,12 +348,19 @@ function deleteEntry(entryId) {
 // Mark the Contact Data As Read
 function markAsRead(entryId, currentStatus) {
   let entryRef = db.ref(`/contactForm/${entryId}`);
-  let newStatus = !currentStatus; // Toggle between true and false
+  let newStatus = !currentStatus; // Toggle status
 
   entryRef
     .update({ read: newStatus })
     .then(() => {
-      fetchContactFormData(); // Refresh the table after updating
+      // Refresh data properly
+      fetchContactFormData(() => {
+        if (filteredEntries.length > 0) {
+          applyDateFilter(); // Reapply filter if active
+        } else {
+          updateTable(); // Otherwise, just update table
+        }
+      });
     })
     .catch((error) => console.error("Error updating status:", error));
 }
@@ -297,6 +408,77 @@ function exportToExcel(type) {
   modalInstance.hide();
 }
 
+function exportToExcelByDate() {
+  const fromDateInput = document.getElementById("exportFromDate").value;
+  const toDateInput = document.getElementById("exportToDate").value;
+
+  if (!fromDateInput || !toDateInput) {
+    showModal(
+      "Missing Dates!",
+      "Please select both From and To dates before exporting.",
+      "alert"
+    );
+    return;
+  }
+
+  let fromTimestamp = new Date(fromDateInput).setHours(0, 0, 0, 0);
+  let toTimestamp = new Date(toDateInput).setHours(23, 59, 59, 999);
+
+  // **Validation: To Date should not be earlier than From Date**
+  if (toTimestamp < fromTimestamp) {
+    showModal(
+      "Invalid Date Range!",
+      "The 'To Date' cannot be earlier than the 'From Date'. Please select a valid date range.",
+      "alert"
+    );
+    return;
+  }
+
+  // **Filter Entries by Date Range**
+  let filteredEntries = allEntries.filter((entry) => {
+    let entryTimestamp = new Date(entry.timestamp).getTime();
+    return entryTimestamp >= fromTimestamp && entryTimestamp <= toTimestamp;
+  });
+
+  if (filteredEntries.length === 0) {
+    showModal(
+      "No Data Found!",
+      "No records found for the selected date range.",
+      "alert"
+    );
+    return;
+  }
+
+  // **Prepare Data for Export**
+  let tableHeaders = [
+    "Timestamp",
+    "Name",
+    "Mobile",
+    "Email",
+    "Message",
+    "Status",
+  ];
+  let tableData = filteredEntries.map((entry) => [
+    new Date(entry.timestamp).toLocaleString(),
+    entry.name,
+    entry.mobile,
+    entry.email || "N/A",
+    entry.message || "N/A",
+    entry.read ? "Read" : "Unread",
+  ]);
+
+  let worksheet = XLSX.utils.aoa_to_sheet([tableHeaders, ...tableData]);
+  let workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered_Data");
+
+  XLSX.writeFile(workbook, `Export_${fromDateInput}_to_${toDateInput}.xlsx`);
+
+  // **Close Modal After Export**
+  let modalElement = document.getElementById("exportByDateModal");
+  let modalInstance = bootstrap.Modal.getInstance(modalElement);
+  modalInstance.hide();
+}
+
 // ============================================================
 // Update Pagination
 function updatePaginationUI(totalEntries) {
@@ -308,11 +490,23 @@ function updatePaginationUI(totalEntries) {
   ).innerText = `Page ${currentPage} of ${totalPages}`;
 }
 
+// Ensure pagination updates correctly when navigating pages
 document.getElementById("nextPage").addEventListener("click", () => {
-  let totalEntries = showUnreadOnly
-    ? allEntries.filter((entry) => !entry.read).length
-    : allEntries.length;
-  if (currentPage < Math.ceil(totalEntries / pageSize)) {
+  let dataToShow = filteredEntries.length > 0 ? filteredEntries : allEntries;
+  if (searchQuery) {
+    dataToShow = dataToShow.filter((entry) => {
+      return (
+        entry.name.toLowerCase().includes(searchQuery) ||
+        entry.mobile.includes(searchQuery) ||
+        (entry.email && entry.email.toLowerCase().includes(searchQuery))
+      );
+    });
+  }
+  if (showUnreadOnly) {
+    dataToShow = dataToShow.filter((entry) => !entry.read);
+  }
+
+  if (currentPage < Math.ceil(dataToShow.length / pageSize)) {
     currentPage++;
     updateTable();
   }
@@ -342,53 +536,128 @@ function formatTimestamp(isoString) {
 
 // ============================================================
 // Setting Modal Scripts for email enable/disable
+// Fetch email sending status from Firebase
+function fetchEmailSendingStatus() {
+  db.ref("config/emailSendingEnabled")
+    .once("value")
+    .then((snapshot) => {
+      emailSendingEnabled = snapshot.val() === true;
+      console.log("Email Sending Enabled:", emailSendingEnabled);
+      updateEmailStatusUI();
+    })
+    .catch((error) => console.error("Error fetching email status:", error));
+}
 
-let emailSendingEnabled = false; // Default state
+// Toggle email sending flag in Firebase
+function toggleEmailSending() {
+  emailSendingEnabled = !emailSendingEnabled;
+  db.ref("config/emailSendingEnabled")
+    .set(emailSendingEnabled)
+    .then(() => {
+      console.log("Email Sending Updated:", emailSendingEnabled);
+      updateEmailStatusUI();
+    })
+    .catch((error) => console.error("Error updating email status:", error));
+}
+
+// Update UI based on email status
+function updateEmailStatusUI() {
+  const sendMailToggle = document.getElementById("sendMailToggle");
+  if (sendMailToggle) {
+    sendMailToggle.checked = emailSendingEnabled; // Sync toggle switch with Firebase
+  }
+}
 
 // Ensure the script runs after the DOM has loaded
 document.addEventListener("DOMContentLoaded", function () {
-  // Get the toggle switch element
   const sendMailToggle = document.getElementById("sendMailToggle");
-
   if (!sendMailToggle) {
     console.error("Error: sendMailToggle element not found in the DOM.");
     return;
   }
 
-  // Fetch email sending status from Firebase
-  function fetchEmailSendingStatus() {
-    db.ref("config/emailSendingEnabled")
-      .once("value")
-      .then((snapshot) => {
-        emailSendingEnabled = snapshot.val() === true;
-        console.log("Email Sending Enabled:", emailSendingEnabled);
-        updateEmailStatusUI();
-      })
-      .catch((error) => console.error("Error fetching email status:", error));
-  }
-
-  // Toggle email sending flag in Firebase
-  function toggleEmailSending() {
-    emailSendingEnabled = !emailSendingEnabled;
-    db.ref("config/emailSendingEnabled")
-      .set(emailSendingEnabled)
-      .then(() => {
-        console.log("Email Sending Updated:", emailSendingEnabled);
-        updateEmailStatusUI();
-      })
-      .catch((error) => console.error("Error updating email status:", error));
-  }
-
-  // Update UI based on email status
-  function updateEmailStatusUI() {
-    sendMailToggle.checked = emailSendingEnabled; // Sync toggle switch with Firebase
-  }
-
   // Attach event listener to toggle switch
   sendMailToggle.addEventListener("change", toggleEmailSending);
 
-  // Fetch initial status when page loads
+  // Fetch initial email setting status when page loads
   fetchEmailSendingStatus();
 });
+
+// ============================================================
+// Refresh Admin Panel
+function refreshAdminPanel() {
+  fetchContactFormData(); // Refresh contact form data
+  fetchEmailSendingStatus(); // Refresh email setting status
+}
+
+// ============================================================
+// Toggle read/unread status
+function toggleReadStatus() {
+  if (!currentMessageId) return; // No message selected
+
+  let entry = allEntries.find((e) => e.id === currentMessageId);
+  if (!entry) return;
+
+  let newStatus = !entry.read; // Toggle read/unread status
+
+  let entryRef = db.ref(`/contactForm/${currentMessageId}`);
+  entryRef
+    .update({ read: newStatus })
+    .then(() => {
+      // Update button visibility
+      document
+        .getElementById("markReadBtn")
+        .classList.toggle("d-none", newStatus);
+      document
+        .getElementById("markUnreadBtn")
+        .classList.toggle("d-none", !newStatus);
+
+      // Refresh table after status change
+      fetchContactFormData(() => {
+        if (filteredEntries.length > 0) {
+          applyDateFilter();
+        } else {
+          updateTable();
+        }
+      });
+    })
+    .catch((error) => console.error("Error updating message status:", error));
+}
+
+// ============================================================
+// Date Placeholder
+function toggleDatePlaceholder(input) {
+  if (!input.value) {
+    input.type = "text"; // Switch back to text type
+    input.placeholder = input.id === "fromDate" ? "From Date" : "To Date";
+  }
+}
+
+// Initialize placeholders on page load
+document.addEventListener("DOMContentLoaded", function () {
+  toggleDatePlaceholder(document.getElementById("fromDate"));
+  toggleDatePlaceholder(document.getElementById("toDate"));
+});
+
+// Date Range Validation
+function validateDateRange() {
+  const fromDateInput = document.getElementById("fromDate");
+  const toDateInput = document.getElementById("toDate");
+
+  if (fromDateInput.value && toDateInput.value) {
+    let fromTimestamp = new Date(fromDateInput.value).getTime();
+    let toTimestamp = new Date(toDateInput.value).getTime();
+
+    // If "To Date" is earlier than "From Date", show error
+    if (toTimestamp < fromTimestamp) {
+      showModal(
+        "Invalid Date Range!",
+        "The 'To Date' cannot be earlier than the 'From Date'. Please select a valid date range.",
+        "alert"
+      );
+      toDateInput.value = ""; // Clear the incorrect date selection
+    }
+  }
+}
 
 // ============================================================
