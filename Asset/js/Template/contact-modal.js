@@ -14,22 +14,34 @@ document.addEventListener("DOMContentLoaded", function () {
                             <span id="responseTextContent"></span>
                           </h5>
                         </div>
-                        <form id="contactForm">
+                        <form id="contactForm" class="needs-validation" novalidate>
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full Name<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" autocomplete="name" required>
+                                <div class="invalid-feedback text-white">
+                                    Please enter your name.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="mobile" class="form-label">Mobile Number<span class="text-danger">*</span></label>
                                 <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" autocomplete="tel" required>
+                                <div class="invalid-feedback text-white">
+                                    Please enter a valid 10-digit mobile number.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email ID</label>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" autocomplete="email">
+                                <input type="email" class="form-control optional-field" id="email" name="email" placeholder="Enter your email" autocomplete="email">
+                                <div class="invalid-feedback text-white">
+                                    Please enter a valid email address.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="message" class="form-label">Comment Your Requirement</label>
-                                <textarea class="form-control" id="message" name="message" rows="3" placeholder="Please enter your message within 200 words." maxlength="1200"></textarea>
+                                <textarea class="form-control optional-field" id="message" name="message" rows="3" placeholder="Please enter your message within 200 words." maxlength="1200"></textarea>
+                                <div class="form-text text-white-50">
+                                    <span id="charCount">0</span>/1200 characters
+                                </div>
                             </div>
                             <div class="d-flex justify-content-center">
                                 <button type="submit" class="btn btn-custom">Submit</button>
@@ -43,11 +55,80 @@ document.addEventListener("DOMContentLoaded", function () {
   // Append modal to body
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-  // Handle form submission
-  document
-    .getElementById("contactForm")
-    .addEventListener("submit", function (event) {
+  // Character counter for message field
+  const messageField = document.getElementById("message");
+  const charCount = document.getElementById("charCount");
+  
+  if (messageField && charCount) {
+    messageField.addEventListener("input", function() {
+      charCount.textContent = this.value.length;
+    });
+  }
+
+  // Handle form submission with improved validation
+  const form = document.getElementById("contactForm");
+  if (form) {
+    // Add custom CSS to hide validation icons for empty optional fields
+    const style = document.createElement('style');
+    style.textContent = `
+      .optional-field:placeholder-shown:valid {
+        background-image: none !important;
+      }
+      .optional-field:placeholder-shown + .valid-feedback {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Custom validation for optional fields
+    const optionalFields = form.querySelectorAll('.optional-field');
+    optionalFields.forEach(field => {
+      // Initial state - remove required attribute
+      field.removeAttribute('required');
+      
+      field.addEventListener('input', function() {
+        // If field has content, validate it; otherwise, remove validation
+        if (this.value.trim() !== '') {
+          this.setAttribute('required', '');
+          // Force validation check
+          this.classList.remove('is-valid');
+          this.classList.remove('is-invalid');
+          this.checkValidity();
+        } else {
+          this.removeAttribute('required');
+          this.classList.remove('is-invalid');
+          this.classList.remove('is-valid');
+        }
+      });
+      
+      // Also check on blur to handle cases where user clicks away
+      field.addEventListener('blur', function() {
+        if (this.value.trim() === '') {
+          this.classList.remove('is-invalid');
+          this.classList.remove('is-valid');
+        }
+      });
+    });
+
+    form.addEventListener("submit", function (event) {
       event.preventDefault();
+      
+      // Reset validation for optional fields before validation
+      optionalFields.forEach(field => {
+        if (field.value.trim() === '') {
+          field.removeAttribute('required');
+          field.classList.remove('is-valid');
+          field.classList.remove('is-invalid');
+        } else {
+          field.setAttribute('required', '');
+        }
+      });
+      
+      if (!this.checkValidity()) {
+        event.stopPropagation();
+        this.classList.add("was-validated");
+        return;
+      }
 
       const submitButton = this.querySelector("button[type='submit']");
       // Save the original button content
@@ -61,13 +142,6 @@ document.addEventListener("DOMContentLoaded", function () {
       let mobile = document.getElementById("mobile").value.trim();
       let email = document.getElementById("email").value.trim();
       let message = document.getElementById("message").value.trim();
-
-      if (!name || !mobile) {
-        alert("⚠️ Full Name and Mobile Number are required.");
-        submitButton.innerHTML = originalButtonContent; // ✅ Restore button text
-        submitButton.disabled = false; // ✅ Re-enable button
-        return;
-      }
 
       // Data to send
       let formData = {
@@ -83,7 +157,12 @@ document.addEventListener("DOMContentLoaded", function () {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
         .then((responseData) => {
           const responseMessage = document.getElementById("responseMessage");
           const responseText = document.getElementById("responseText");
@@ -118,6 +197,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             document.getElementById("contactForm").reset();
             document.getElementById("contactForm").classList.add("d-none");
+            document.getElementById("contactForm").classList.remove("was-validated");
+            if (charCount) charCount.textContent = "0";
           } else {
             responseIcon.className = "fa-solid fa-circle-xmark text-danger";
             responseTextContent.textContent =
@@ -149,6 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
           submitButton.disabled = false; // ✅ Re-enable button
         });
     });
+  }
 
   // Function to send email dynamically using values from response
   function sendEmail(
@@ -179,10 +261,21 @@ document.addEventListener("DOMContentLoaded", function () {
   function resetContactForm() {
     const contactForm = document.getElementById("contactForm");
     const responseMessage = document.getElementById("responseMessage");
+    const charCount = document.getElementById("charCount");
+    const optionalFields = document.querySelectorAll('.optional-field');
 
     if (contactForm) {
       contactForm.classList.remove("d-none"); // Show form
+      contactForm.classList.remove("was-validated"); // Remove validation styles
       contactForm.reset(); // Clear form fields
+      if (charCount) charCount.textContent = "0"; // Reset character counter
+      
+      // Reset optional fields
+      optionalFields.forEach(field => {
+        field.removeAttribute('required');
+        field.classList.remove('is-invalid');
+        field.classList.remove('is-valid');
+      });
     }
 
     if (responseMessage) {
@@ -191,12 +284,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Reset form when modal is opened
-  document
-    .getElementById("contactModal")
-    .addEventListener("shown.bs.modal", resetContactForm);
-
-  // Reset form when modal is closed
-  document
-    .getElementById("contactModal")
-    .addEventListener("hidden.bs.modal", resetContactForm);
+  const contactModal = document.getElementById("contactModal");
+  if (contactModal) {
+    contactModal.addEventListener("shown.bs.modal", resetContactForm);
+    contactModal.addEventListener("hidden.bs.modal", resetContactForm);
+  }
 });
