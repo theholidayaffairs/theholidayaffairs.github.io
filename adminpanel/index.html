@@ -121,14 +121,14 @@
                 <label for="fromDateOutside" class="fw-semibold text-secondary d-inline-flex align-items-center gap-1"
                     style="white-space: nowrap;">
                     <i class="fa-solid fa-calendar-days text-primary"></i> From
-                    <input type="date" id="fromDateOutside" class="form-control form-control-sm"
+                    <input type="date" id="fromDate" class="form-control form-control-sm"
                         style="min-width: 150px;" onchange="validateDateRange()">
                 </label>
 
                 <label for="toDateOutside" class="fw-semibold text-secondary d-inline-flex align-items-center gap-1"
                     style="white-space: nowrap;">
                     <i class="fa-solid fa-calendar-check text-success"></i> To
-                    <input type="date" id="toDateOutside" class="form-control form-control-sm" style="min-width: 150px;"
+                    <input type="date" id="toDate" class="form-control form-control-sm" style="min-width: 150px;"
                         onchange="validateDateRange()">
                 </label>
 
@@ -222,14 +222,14 @@
                             <label for="fromDate" class="fw-semibold text-secondary d-flex align-items-center">
                                 <i class="fa-solid fa-calendar-days text-primary me-2"></i> From
                             </label>
-                            <input type="date" id="fromDate" class="form-control form-control-sm"
+                            <input type="date" id="exportFromDate" class="form-control form-control-sm"
                                 style="max-width: 200px;" onchange="validateDateRange()">
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <label for="toDate" class="fw-semibold text-secondary d-flex align-items-center">
                                 <i class="fa-solid fa-calendar-check text-success me-2"></i> To
                             </label>
-                            <input type="date" id="toDate" class="form-control form-control-sm"
+                            <input type="date" id="exportToDate" class="form-control form-control-sm"
                                 style="max-width: 200px;" onchange="validateDateRange()">
                         </div>
                     </div>
