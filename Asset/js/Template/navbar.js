@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </a>
 
                     <!-- Mobile Menu Button -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
@@ -45,57 +45,45 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
   }
 
-  // Dropdown Toggle Fix for Mobile
+  // Improved Dropdown Toggle for Mobile
   const dropdownToggle = document.querySelector("#destinationsDropdown");
+  const dropdownMenu = document.querySelector(".dropdown-menu");
 
-  if (dropdownToggle) {
-    dropdownToggle.addEventListener("click", function (event) {
-      if (window.innerWidth < 992) {
-        // Only for mobile
+  if (dropdownToggle && dropdownMenu) {
+    // For mobile devices
+    if (window.innerWidth < 992) {
+      dropdownToggle.addEventListener("click", function (event) {
         event.preventDefault();
+        event.stopPropagation();
         this.parentElement.classList.toggle("show");
-      }
-    });
+        dropdownMenu.classList.toggle("show");
+      });
+    }
 
     // Close dropdown when clicking outside
     document.addEventListener("click", function (event) {
       if (
         window.innerWidth < 992 &&
         !dropdownToggle.contains(event.target) &&
-        !dropdownToggle.parentElement.contains(event.target)
+        !dropdownMenu.contains(event.target)
       ) {
         dropdownToggle.parentElement.classList.remove("show");
+        dropdownMenu.classList.remove("show");
       }
     });
   }
-});
 
-// Close Navbar on Link Click in Mobile View
-const navLinks = document.querySelectorAll(".nav-close");
-const navbarCollapse = document.getElementById("navbarNav");
+  // Close Navbar on Link Click in Mobile View
+  const navLinks = document.querySelectorAll(".nav-close");
+  const navbarToggler = document.querySelector(".navbar-toggler");
+  const navbarCollapse = document.getElementById("navbarNav");
 
-navLinks.forEach(link => {
+  navLinks.forEach(link => {
     link.addEventListener("click", function () {
-        if (window.innerWidth < 992) { // Only close on mobile view
-            const navbarToggler = document.querySelector(".navbar-toggler");
-            if (navbarToggler.getAttribute("aria-expanded") === "true") {
-                navbarToggler.click(); // Close the menu
-            }
-        }
+      if (window.innerWidth < 992 && navbarCollapse.classList.contains("show")) { 
+        const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+        bsCollapse.hide();
+      }
     });
-});
-
-// Navbar drop down close in responsive view
-document.addEventListener("DOMContentLoaded", function () {
-    const navLinks = document.querySelectorAll(".nav-close");
-    const navbarToggler = document.querySelector(".navbar-toggler");
-    const navbarCollapse = document.getElementById("navbarNav");
-
-    navLinks.forEach(link => {
-        link.addEventListener("click", function () {
-            if (window.innerWidth < 992 && navbarCollapse.classList.contains("show")) { 
-                navbarToggler.click(); // Close the menu
-            }
-        });
-    });
+  });
 });
