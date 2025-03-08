@@ -216,20 +216,21 @@ function updateTable() {
                     <button class='btn btn-${
                       entry.read ? "warning" : "success"
                     } btn-sm' 
-                        onclick='markAsRead("${entry.id}", ${entry.read})'
-                        data-bs-toggle="tooltip" title="${buttonText}">
+                        onclick='markAsRead("${entry.id}", ${
+      entry.read
+    })' title="${buttonText}">
                         <i class="fa-solid ${
                           entry.read ? "fa-envelope-open" : "fa-envelope"
                         }"></i>
                     </button>
                     <button class='btn btn-info btn-sm' 
-                        onclick='viewMessage("${entry.id}")' 
-                        data-bs-toggle="tooltip" title="View Message">
+                        onclick='viewMessage("${
+                          entry.id
+                        }")' title="View Message">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                     <button class='btn btn-danger btn-sm' 
-                        onclick='deleteEntry("${entry.id}")' 
-                        data-bs-toggle="tooltip" title="Delete">
+                        onclick='deleteEntry("${entry.id}")' title="Delete">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -264,14 +265,6 @@ function viewMessage(id) {
     document
       .getElementById("markUnreadBtn")
       .classList.toggle("d-none", !entry.read);
-
-    // Reinitialize Bootstrap tooltips
-    setTimeout(() => {
-      let tooltipTriggerList = document.querySelectorAll(
-        '[data-bs-toggle="tooltip"]'
-      );
-      tooltipTriggerList.forEach((tooltip) => new bootstrap.Tooltip(tooltip));
-    }, 200); // Small delay ensures tooltips work after modal opens
 
     let modal = new bootstrap.Modal(
       document.getElementById("contactMessageModal")
@@ -625,20 +618,6 @@ function toggleReadStatus() {
 }
 
 // ============================================================
-// Date Placeholder
-function toggleDatePlaceholder(input) {
-  if (!input.value) {
-    input.type = "text"; // Switch back to text type
-    input.placeholder = input.id === "fromDate" ? "From Date" : "To Date";
-  }
-}
-
-// Initialize placeholders on page load
-document.addEventListener("DOMContentLoaded", function () {
-  toggleDatePlaceholder(document.getElementById("fromDate"));
-  toggleDatePlaceholder(document.getElementById("toDate"));
-});
-
 // Date Range Validation
 function validateDateRange() {
   const fromDateInput = document.getElementById("fromDate");

@@ -24,7 +24,7 @@
     <div class="container mt-5 p-4 shadow-lg bg-white rounded position-relative">
         <!-- Logout Button -->
         <button id="logoutSection" class="btn btn-danger position-absolute top-0 end-0 m-3 d-none" onclick="logout()"
-            data-bs-toggle="tooltip" title="Logout">
+            title="Logout">
             <i class="fa-solid fa-power-off"></i>
         </button>
         <h4 class="text-center">Admin Panel</h4>
@@ -118,13 +118,20 @@
                     style="max-width: 300px;">
 
                 <!-- Date Filters -->
-                <input type="date" id="fromDate" class="form-control form-control-sm" style="max-width: 200px;"
-                    onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)" onchange="validateDateRange()"
-                    placeholder="From Date">
+                <label for="fromDateOutside" class="fw-semibold text-secondary d-inline-flex align-items-center gap-1"
+                    style="white-space: nowrap;">
+                    <i class="fa-solid fa-calendar-days text-primary"></i> From
+                    <input type="date" id="fromDateOutside" class="form-control form-control-sm"
+                        style="min-width: 150px;" onchange="validateDateRange()">
+                </label>
 
-                <input type="date" id="toDate" class="form-control form-control-sm" style="max-width: 200px;"
-                    onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)" onchange="validateDateRange()"
-                    placeholder="To Date">
+                <label for="toDateOutside" class="fw-semibold text-secondary d-inline-flex align-items-center gap-1"
+                    style="white-space: nowrap;">
+                    <i class="fa-solid fa-calendar-check text-success"></i> To
+                    <input type="date" id="toDateOutside" class="form-control form-control-sm" style="min-width: 150px;"
+                        onchange="validateDateRange()">
+                </label>
+
 
                 <!-- Filter Buttons -->
                 <button class="btn btn-primary btn-sm px-3" onclick="applyDateFilter()">
@@ -210,13 +217,21 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex flex-column align-items-center gap-2">
-                        <input type="date" id="exportFromDate" class="form-control form-control-sm"
-                            style="max-width: 250px;" onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)"
-                            placeholder="From Date">
-                        <input type="date" id="exportToDate" class="form-control form-control-sm"
-                            style="max-width: 250px;" onfocus="this.type='date'" onblur="toggleDatePlaceholder(this)"
-                            placeholder="To Date">
+                    <div class="d-flex flex-column align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="fromDate" class="fw-semibold text-secondary d-flex align-items-center">
+                                <i class="fa-solid fa-calendar-days text-primary me-2"></i> From
+                            </label>
+                            <input type="date" id="fromDate" class="form-control form-control-sm"
+                                style="max-width: 200px;" onchange="validateDateRange()">
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="toDate" class="fw-semibold text-secondary d-flex align-items-center">
+                                <i class="fa-solid fa-calendar-check text-success me-2"></i> To
+                            </label>
+                            <input type="date" id="toDate" class="form-control form-control-sm"
+                                style="max-width: 200px;" onchange="validateDateRange()">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 d-flex justify-content-center gap-2">
@@ -264,11 +279,11 @@
                     </h5>
                     <div>
                         <button id="markReadBtn" class="btn btn-success btn-sm me-2 d-none" onclick="toggleReadStatus()"
-                            data-bs-toggle="tooltip" title="Mark as Read">
+                            title="Mark as Read">
                             <i class="fa-solid fa-envelope"></i>
                         </button>
                         <button id="markUnreadBtn" class="btn btn-warning btn-sm me-2 d-none"
-                            onclick="toggleReadStatus()" data-bs-toggle="tooltip" title="Mark as Unread">
+                            onclick="toggleReadStatus()" title="Mark as Unread">
                             <i class="fa-solid fa-envelope-open"></i>
                         </button>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
